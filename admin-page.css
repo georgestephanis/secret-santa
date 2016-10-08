@@ -1,0 +1,21 @@
+.elf-card {
+  border: 1px solid #800;
+  background: #fff;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  width: 200px;
+  padding: 10px;
+  margin: 10px; }
+  .elf-card .elfvatar {
+    float: left;
+    margin: 0 0.5em 0 0; }
+    .elf-card .elfvatar img {
+      display: block;
+      width: 70px;
+      height: 70px; }
+  .elf-card .name {
+    color: #800;
+    margin: 0; }
+  .elf-card .address {
+    display: none; }
+  .elf-card .country {
+    color: #080; }
