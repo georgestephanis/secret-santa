@@ -12,6 +12,25 @@
 class Secret_Santa {
     public static function add_hooks() {
         add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
+        add_shortcode( 'secret_santa', array( __CLASS__, 'shortcode' ) );
+    }
+
+    public static function shortcode( $atts ) {
+        $user_id = get_current_user_id();
+        ?>
+        <div id="secret-santa-wrap">
+            <?php if ( ! $user_id ) : ?>
+                <p><?php esc_html_e( 'Want to sign up? Log in!', 'secret-santa' ); ?></p>
+                <?php wp_login_form(); ?>
+            <?php else : ?>
+                <?php $user = get_userdata( $user_id ); ?>
+                <p><?php echo esc_html( sprintf( __( 'Happy Holidays, %s!' ), $user->display_name ) ); ?></p>
+
+                <?php /* If signed up, display info, otherwise display form. */ ?>
+                
+            <?php endif; ?>
+        </div>
+        <?php
     }
 
     public static function admin_menu() {
