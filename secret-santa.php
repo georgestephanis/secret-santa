@@ -46,7 +46,6 @@ class Secret_Santa {
 				<?php wp_login_form(); ?>
 			<?php else : ?>
 				<?php $user = get_userdata( $user_id ); ?>
-				<p><?php echo esc_html( sprintf( __( 'Happy Holidays, %s!' ), $user->display_name ) ); ?></p>
 
 				<?php
 				$found = get_posts( array(
