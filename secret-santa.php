@@ -65,7 +65,9 @@ class Secret_Santa {
 							'shipping_country' => null,
 						), $user_id, $user );
 					?>
-					<form action="#">
+					<form id="secret-santa-signup" action="#">
+						<input type="hidden" name="action" value="secret-santa_signup" />
+						<?php wp_nonce_field( 'secret-santa_signup' ); ?>
 						<label>
 							<?php esc_html_e( 'Your shipping address', 'secret-santa' ); ?>
 							<textarea name="shipping_address" required><?php echo esc_textarea( $defaults['shipping_address'] ); ?></textarea>
