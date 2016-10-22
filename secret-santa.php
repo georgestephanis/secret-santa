@@ -44,10 +44,8 @@ class Secret_Santa {
 			<?php if ( ! $user_id ) : ?>
 				<p><?php esc_html_e( 'Want to sign up? Log in!', 'secret-santa' ); ?></p>
 				<?php wp_login_form(); ?>
-			<?php else : ?>
-				<?php $user = get_userdata( $user_id ); ?>
-
-				<?php
+			<?php else :
+				$user = get_userdata( $user_id );
 				$found = get_posts( array(
 					'author' => $user_id,
 					'slug' => $user->user_login,
@@ -85,9 +83,7 @@ class Secret_Santa {
 					</form>
 					<?php
 				}
-				?>
-
-			<?php endif; ?>
+			endif; ?>
 		</div>
 		<?php
 	}
@@ -458,7 +454,7 @@ class Secret_Santa {
 			'ZM' => __( 'Zambia', 'secret-santa' ),
 			'ZW' => __( 'Zimbabwe', 'secret-santa' ),
 		);
-		
+
 		return $countries;
 	}
 }
