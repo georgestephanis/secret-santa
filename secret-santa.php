@@ -34,18 +34,6 @@ class Secret_Santa {
 			'description' => __( 'The country to which the participant\'s gift will be sent.', 'secret-santa' ),
 			'single' => true,
 		) );
-
-		register_meta( 'post', 'secret-santa :: country_restrictions :: ship_to', array(
-			'type' => 'CSV list of ISO 3166-1 alpha-2 country codes',
-			'description' => __( 'Countries to which the participant is willing to ship gifts to.', 'secret-santa' ),
-			'single' => true,
-		) );
-
-		register_meta( 'post', 'secret-santa :: country_restrictions :: receive_from', array(
-			'type' => 'CSV list of ISO 3166-1 alpha-2 country codes',
-			'description' => __( 'Countries to which the participant is willing to receive gifts from (due to customs or the like).', 'secret-santa' ),
-			'single' => true,
-		) );
 	}
 
 	public static function shortcode( $atts ) {
@@ -122,7 +110,6 @@ class Secret_Santa {
 				<thead>
 				<tr>
 					<th scope="col"><?php esc_html_e( 'User' ); ?></th>
-					<th scope="col"><?php esc_html_e( 'Restrictions' ); ?></th>
 					<th scope="col"><?php esc_html_e( 'Shipping To' ); ?></th>
 					<th scope="col"><?php esc_html_e( 'Receiving From' ); ?></th>
 				</tr>
@@ -130,14 +117,13 @@ class Secret_Santa {
 				<tfoot>
 				<tr>
 					<th scope="col"><?php esc_html_e( 'User' ); ?></th>
-					<th scope="col"><?php esc_html_e( 'Restrictions' ); ?></th>
 					<th scope="col"><?php esc_html_e( 'Shipping To' ); ?></th>
 					<th scope="col"><?php esc_html_e( 'Receiving From' ); ?></th>
 				</tr>
 				</tfoot>
 				<tbody>
 				<tr class="no-items">
-					<td class="colspanchange" colspan="4"><?php esc_html_e( 'No participants yet.' ); ?></td>
+					<td class="colspanchange" colspan="3"><?php esc_html_e( 'No participants yet.' ); ?></td>
 				</tr>
 				</tbody>
 			</table>
@@ -164,18 +150,9 @@ class Secret_Santa {
 		<script type="text/html" id="tmpl-elf-row">
 			   <tr>
 				   <td>{{{ data.elf_card }}}</td>
-				   <td>
-					   <ul>
-						   {{{ data.restrictions }}}
-					   </ul>
-				   </td>
 				   <td>{{{ data.shipping_to_card }}}</td>
 				   <td>{{{ data.receiving_from_card }}}</td>
 			   </tr>
-		</script>
-
-		<script type="text/html" id="tmpl-elf-restriction">
-			<li>{{ data.restriction }}</li>
 		</script>
 		<?php
 	}
