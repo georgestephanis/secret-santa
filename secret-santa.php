@@ -20,8 +20,6 @@ class Secret_Santa {
 	public static function register_post_type() {
 		register_post_type( 'secret-santa', array(
 			'label' => __( 'Secret Santa', 'secret-santa' ),
-			'show_ui' => true,
-			'menu_icon' => 'dashicons-products',
 		) );
 
 		register_meta( 'post', 'secret-santa :: shipping_address', array(
