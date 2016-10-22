@@ -190,18 +190,27 @@ class Secret_Santa {
 	}
 
 	public static function get_users() {
-		return array(
-			'bobsmith' => array(
-				'name' => 'Bob Smith',
-				'avatar_url' => 'https://dummyimage.com/300x300/000/fff',
-				'address' => "123 Anystreet\r\nMytown, PA 17603",
-				'country' => 'USA',
-				'restrictions' => array(
-					'shipping_to' => 'any',
-					'receiving_from' => 'any',
-				),
-			)
-		);
+		$users = get_posts( array(
+			'post_type' => 'secret-santa',
+			'post_status' => 'publish',
+			'posts_per_page' => -1,
+		) );
+
+		$return = array();
+
+		if ( $users ) {
+			foreach ( $users as $user_post ) {
+				$user = get_user_by( 'login', $user_post->post_name );
+				$return[ $user->user_login ] = array(
+					'name' => $user->display_name,
+					'avatar_url' => get_avatar_url( $user ),
+					'address' => get_post_meta( $user_post->ID, 'secret-santa :: shipping_address', true ),
+					'country' => get_post_meta( $user_post->ID, 'secret-santa :: shipping_country', true ),
+				);
+			}
+		}
+
+		return $return;
 	}
 
 	public static function get_countries() {
