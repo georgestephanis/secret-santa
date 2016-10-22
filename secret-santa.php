@@ -77,7 +77,7 @@ class Secret_Santa {
 							<select name="shipping_country" required>
 								<option value=""><?php esc_html_e( 'Select a country...', 'secret-santa' ); ?></option>
 								<?php foreach ( $countries as $code => $country ) : ?>
-									<option value="<?php echo esc_attr( $code ); ?>" <?php if ( $code === $defaults['shipping_country'] ) echo ' selected="selected"'; ?> ><?php echo esc_html( $country ); ?></option>
+									<option value="<?php echo esc_attr( $code ); ?>" <?php if ( in_array( $defaults['shipping_country'], array( $code, $country ) ) echo ' selected="selected"'; ?> ><?php echo esc_html( $country ); ?></option>
 								<?php endforeach; ?>
 							</select>
 						</label>
