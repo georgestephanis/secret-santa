@@ -50,6 +50,7 @@ class Secret_Santa {
 				<?php
 				$found = get_posts( array(
 					'author' => $user_id,
+					'slug' => $user->user_login,
 					'post_type' => 'secret-santa',
 					'post_status' => 'publish',
 					'posts_per_page' => 1,
