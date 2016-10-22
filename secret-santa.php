@@ -14,6 +14,7 @@ class Secret_Santa {
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_shortcode( 'secret-santa', array( __CLASS__, 'shortcode' ) );
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
+		add_action( 'admin_post_secret-santa_signup', array( __CLASS__, 'process_signup' ) );
 	}
 
 	public static function register_post_type() {
@@ -65,7 +66,7 @@ class Secret_Santa {
 							'shipping_country' => null,
 						), $user_id, $user );
 					?>
-					<form id="secret-santa-signup" action="#">
+					<form id="secret-santa-signup" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
 						<input type="hidden" name="action" value="secret-santa_signup" />
 						<?php wp_nonce_field( 'secret-santa_signup' ); ?>
 						<label>
@@ -90,6 +91,41 @@ class Secret_Santa {
 			<?php endif; ?>
 		</div>
 		<?php
+	}
+
+	public static function process_signup() {
+		check_admin_referer( 'secret-santa_signup' );
+
+		$user_id = get_current_user_id();
+		$user = get_userdata( $user_id );
+		$found = get_posts( array(
+			'author' => $user_id,
+			'slug' => $user->user_login,
+			'post_type' => 'secret-santa',
+			'post_status' => 'publish',
+			'posts_per_page' => 1,
+		) );
+
+		$postarr = array(
+			'post_author' => $user_id,
+			'post_title' => $user->display_name,
+			'post_name' => $user->user_login,
+			'post_type' => 'secret-santa',
+			'post_status' => 'publish',
+		);
+
+		if ( $found ) {
+			$postarr['ID'] = $found[0]->ID;
+		}
+
+		$post_id = wp_insert_post( $postarr );
+
+		if ( $post_id ) {
+			update_post_meta( $post_id, 'secret-santa :: shipping_address', sanitize_text_field( $_POST['shipping_address'] ) );
+			update_post_meta( $post_id, 'secret-santa :: shipping_country', sanitize_text_field( $_POST['shipping_country'] ) );
+		}
+
+		wp_safe_redirect( $_POST['_wp_http_referer'] . '#elf-' . $post_id );
 	}
 
 	public static function admin_menu() {
