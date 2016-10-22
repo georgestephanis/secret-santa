@@ -12,7 +12,7 @@
 class Secret_Santa {
 	public static function add_hooks() {
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
-		add_shortcode( 'secret_santa', array( __CLASS__, 'shortcode' ) );
+		add_shortcode( 'secret-santa', array( __CLASS__, 'shortcode' ) );
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 	}
 
