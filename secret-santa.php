@@ -52,36 +52,42 @@ class Secret_Santa {
 					'post_status' => 'publish',
 					'posts_per_page' => 1,
 				) );
+				$countries = self::get_countries();
+				$defaults = apply_filters( 'secret-santa_get_sign_up_defaults', array(
+					'shipping_address' => null,
+					'shipping_country' => null,
+				), $user_id, $user );
+				$submit_text = __( 'Sign up!', 'secret-santa' );
 
 				if ( ! empty( $found ) ) {
-					echo '<p>' . esc_html__( 'You are already signed up!', 'secret-santa' ) . '</p>';
-				} else {
-					$countries = self::get_countries();
-					$defaults = apply_filters( 'secret-santa_get_sign_up_defaults', array(
-							'shipping_address' => null,
-							'shipping_country' => null,
-						), $user_id, $user );
-					?>
-					<form id="secret-santa-signup" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
-						<input type="hidden" name="action" value="secret-santa_signup" />
-						<?php wp_nonce_field( 'secret-santa_signup' ); ?>
-						<label>
-							<?php esc_html_e( 'Your shipping address', 'secret-santa' ); ?>
-							<textarea name="shipping_address" required><?php echo esc_textarea( $defaults['shipping_address'] ); ?></textarea>
-						</label>
-						<label>
-							<?php esc_html_e( 'Your shipping country', 'secret-santa' ); ?>
-							<select name="shipping_country" required>
-								<option value=""><?php esc_html_e( 'Select a country...', 'secret-santa' ); ?></option>
-								<?php foreach ( $countries as $code => $country ) : ?>
-									<option value="<?php echo esc_attr( $code ); ?>" <?php if ( in_array( $defaults['shipping_country'], array( $code, $country ) ) ) echo ' selected="selected"'; ?> ><?php echo esc_html( $country ); ?></option>
-								<?php endforeach; ?>
-							</select>
-						</label>
-						<button type="submit"><?php esc_html_e( 'Sign up!' ); ?></button>
-					</form>
-					<?php
+					$user_post = array_shift( $found );
+					echo '<p class="alert">' . esc_html__( 'You are already signed up!  You may update your details below:', 'secret-santa' ) . '</p>';
+					$submit_text = __( 'Update info!', 'secret-santa' );
+					$defaults = array(
+						'shipping_address' => get_post_meta( $user_post->ID, 'secret-santa :: shipping_address', true ),
+						'shipping_country' => get_post_meta( $user_post->ID, 'secret-santa :: shipping_country', true ),
+					);
 				}
+				?>
+				<form id="secret-santa-signup" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
+					<input type="hidden" name="action" value="secret-santa_signup" />
+					<?php wp_nonce_field( 'secret-santa_signup' ); ?>
+					<label>
+						<?php esc_html_e( 'Your shipping address', 'secret-santa' ); ?>
+						<textarea name="shipping_address" required><?php echo esc_textarea( $defaults['shipping_address'] ); ?></textarea>
+					</label>
+					<label>
+						<?php esc_html_e( 'Your shipping country', 'secret-santa' ); ?>
+						<select name="shipping_country" required>
+							<option value=""><?php esc_html_e( 'Select a country...', 'secret-santa' ); ?></option>
+							<?php foreach ( $countries as $code => $country ) : ?>
+								<option value="<?php echo esc_attr( $code ); ?>" <?php if ( in_array( $defaults['shipping_country'], array( $code, $country ) ) ) echo ' selected="selected"'; ?> ><?php echo esc_html( $country ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</label>
+					<button type="submit"><?php echo esc_html( $submit_text ); ?></button>
+				</form>
+				<?php
 			endif; ?>
 		</div>
 		<?php
