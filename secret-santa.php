@@ -37,6 +37,7 @@ class Secret_Santa {
 
 	public static function shortcode( $atts ) {
 		$user_id = get_current_user_id();
+		ob_start();
 		?>
 		<div id="secret-santa-wrap">
 			<?php if ( ! $user_id ) : ?>
@@ -84,6 +85,7 @@ class Secret_Santa {
 			endif; ?>
 		</div>
 		<?php
+		return ob_get_clean();
 	}
 
 	public static function process_signup() {
