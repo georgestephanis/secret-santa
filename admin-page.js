@@ -51,8 +51,20 @@
 		elves = assign_elves( elves );
 		elves = _.indexBy( elves, 'user_login' );
 		render_elves( elves );
-		$('.assign-elves').text('Accept assignments and save').off('click').on('click', function(){
-			alert('Trying to save!');
+		$('.assign-elves').text( 'Accept assignments and save' ).off( 'click' ).on( 'click', function(){
+			var data = {
+				action : 'save_elf_assignees',
+				_elfnonce : secretSanta.nonces.save_elf_assignees,
+				elf : {}
+			};
+
+			_.each( elves, function( elf ) {
+				data.elf[ elf.ID ] = elf.shipping_to;
+			});
+
+			$.post( ajaxurl, data, function( response ) {
+				alert( response.data );
+			});
 		});
 	})
 

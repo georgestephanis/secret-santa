@@ -16,6 +16,7 @@ class Secret_Santa {
 		add_shortcode( 'holiday-gift-exchange', array( __CLASS__, 'shortcode' ) );
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 		add_action( 'admin_post_secret-santa_signup', array( __CLASS__, 'process_signup' ) );
+		add_action( 'wp_ajax_save_elf_assignees', array( __CLASS__, 'wp_ajax_save_elf_assignees' ) );
 	}
 
 	public static function register_post_type() {
@@ -147,6 +148,9 @@ class Secret_Santa {
 		wp_enqueue_script( 'secret-santa', plugins_url( 'admin-page.js', __FILE__ ), array( 'wp-util', 'jquery' ), false, true );
 		wp_localize_script( 'secret-santa', 'secretSanta', array(
 			'elves' => self::get_users(),
+			'nonces' => array(
+				'save_elf_assignees' => wp_create_nonce( 'save_elf_assignees' ),
+			),
 		) );
 		?>
 		<div class="wrap" id="secret-santa-page">
@@ -176,6 +180,18 @@ class Secret_Santa {
 			</table>
 		</div>
 		<?php
+	}
+
+	public static function wp_ajax_save_elf_assignees() {
+		check_admin_referer( 'save_elf_assignees', '_elfnonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( __( 'Cheatin\', uh?', 'secret-santa' ) );
+		}
+
+		foreach ( $_POST['elf'] as $elf_id => $send_to ) {
+			update_post_meta( intval( $elf_id ), 'secret-santa :: shipping_to', sanitize_text_field( $send_to ) );
+		}
+		wp_send_json_success( sprintf( __( 'Success! %d assignments saved!', 'secret-santa' ), sizeof( $_POST['elf'] ) ) );
 	}
 
 	/**
@@ -217,6 +233,7 @@ class Secret_Santa {
 			foreach ( $users as $user_post ) {
 				$user = get_user_by( 'login', $user_post->post_name );
 				$return[ $user->user_login ] = array(
+					'ID' => $user_post->ID,
 					'user_login' => $user->user_login,
 					'name' => $user->display_name,
 					'avatar_url' => get_avatar_url( $user ),
