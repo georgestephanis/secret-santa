@@ -100,7 +100,7 @@ class Secret_Santa {
 					<?php
 				endif; ?>
 			<?php elseif ( 2 === $state ) : /* stage two -- signups closed, waiting on assignments */ ?>
-				<p><?php __( 'We are currently sorting out who ships to who and whatnot, and hope to have them available shortly!', 'secret-santa' ); ?></p>
+				<p><?php esc_html_e( 'We are currently sorting out who ships to who and whatnot, and hope to have them available shortly!', 'secret-santa' ); ?></p>
 				<?php if ( ! $user_id ) : ?>
 					<p><?php esc_html_e( 'Want to confirm whether you had signed up? Log in!', 'secret-santa' ); ?></p>
 					<?php wp_login_form(); ?>
