@@ -34,6 +34,12 @@ class Secret_Santa {
 			'description' => __( 'The country to which the participant\'s gift will be sent.', 'secret-santa' ),
 			'single' => true,
 		) );
+
+		register_meta( 'post', 'secret-santa :: shipping_to', array(
+			'type' => 'user_login',
+			'description' => __( 'The user login of the recipient that this person will be sending to.', 'secret-santa' ),
+			'single' => true,
+		) );
 	}
 
 	public static function shortcode( $atts ) {
@@ -144,7 +150,7 @@ class Secret_Santa {
 		) );
 		?>
 		<div class="wrap" id="secret-santa-page">
-			<h1><?php esc_html_e( 'Secret Santa' ); ?></h1>
+			<h1><?php esc_html_e( 'Secret Santa' ); ?> <a class="page-title-action assign-elves" href="#"><?php esc_html_e( 'Assign Elves', 'secret-santa' ); ?></a></h1>
 
 			<h2><?php esc_html_e( 'The following users are participating in Secret Santa' ); ?></h2>
 			<table id="elves-table" class="wp-list-table widefat striped">
@@ -211,10 +217,12 @@ class Secret_Santa {
 			foreach ( $users as $user_post ) {
 				$user = get_user_by( 'login', $user_post->post_name );
 				$return[ $user->user_login ] = array(
+					'user_login' => $user->user_login,
 					'name' => $user->display_name,
 					'avatar_url' => get_avatar_url( $user ),
 					'address' => get_post_meta( $user_post->ID, 'secret-santa :: shipping_address', true ),
 					'country' => get_post_meta( $user_post->ID, 'secret-santa :: shipping_country', true ),
+					'shipping_to' => get_post_meta( $user_post->ID, 'secret-santa :: shipping_to', true ),
 				);
 			}
 		}
