@@ -67,6 +67,22 @@ class Secret_Santa {
 		return array_unshift( $found );
 	}
 
+	public static function get_sender_post_by_recipient( WP_User $recipient, $event = '' ) {
+		$found = get_posts( array(
+			'meta_key' => 'secret-santa :: shipping_to',
+			'meta_value' => $recipient->user_login,
+			'post_type' => 'secret-santa',
+			'post_status' => 'publish',
+			'posts_per_page' => 1,
+		) );
+
+		if ( empty( $found ) ) {
+			return null;
+		}
+
+		return array_unshift( $found );
+	}
+
 	public static function shortcode( $atts ) {
 		$state = 2;
 		$user_id = get_current_user_id();
