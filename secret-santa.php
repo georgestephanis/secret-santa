@@ -86,7 +86,7 @@ class Secret_Santa {
 	}
 
 	public static function shortcode( $atts ) {
-		$state = 2;
+		$state = 3;
 		$user_id = get_current_user_id();
 		$user = wp_get_current_user();
 		$user_post = self::get_user_post( $user );
