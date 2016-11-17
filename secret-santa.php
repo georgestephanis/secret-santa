@@ -148,7 +148,50 @@ class Secret_Santa {
 					}
 				endif; ?>
 			<?php elseif ( 3 === $state ) : /* stage three -- assignments available, please ship */ ?>
+				<?php if ( ! $user_id ) : ?>
+					<p><?php esc_html_e( 'To do anything here, you\'re going to have to log in first!', 'secret-santa' ); ?></p>
+					<?php wp_login_form(); ?>
+				<?php else :
+					if ( empty( $user_post ) ) {
+						echo '<p class="alert">' . esc_html__( 'Unfortunately, sign-ups are now closed, and it doesn\'t look like you signed up!', 'secret-santa' ) . '</p>';
+					} else {
+						$shipping_to = get_post_meta( $user_post->ID, 'secret-santa :: shipping_to', true );
+						$shipping_to_user = get_user_by( 'login', $shipping_to );
+						$shipping_to_post = self::get_user_post( $shipping_to_user );
+						?>
 
+						<h3><?php _e( 'You will be shipping to:', 'secret-santa' ); ?></h3>
+
+						<div class="shipping-to-card">
+							<h4><?php echo esc_html( $shipping_to_user->display_name ); ?></h4>
+							<p><?php echo esc_html( get_post_meta( $shipping_to_post->ID, 'secret-santa :: shipping_address', true ) ); ?></p>
+							<p><strong><?php echo esc_html( self::country_abbr_to_name( get_post_meta( $shipping_to_post->ID, 'secret-santa :: shipping_country', true ) ) ); ?></strong></p>
+						</div>
+
+						<?php do_action( 'secret-santa_shipping_to_additional_details', $shipping_to_user, $shipping_to_post, $user_post ); ?>
+
+						<hr />
+
+						<h3><?php esc_html_e( 'Would you like to send a message?', 'secret-santa' ); ?></h3>
+
+						<form id="secret-santa_message-sender" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
+							<input type="hidden" name="action" value="secret-santa_message-sender" />
+							<?php wp_nonce_field( 'secret-santa_message-sender' ); ?>
+							<label for="secret-santa_message-sender-msg"><?php esc_html_e( 'Send a message to the person who is sending a gift to you!', 'secret-santa' ); ?></label>
+							<textarea id="secret-santa_message-sender-msg" name="secret-santa_message-sender-msg"></textarea>
+							<button type="submit"><?php esc_html_e( 'Message the person sending YOU a gift', 'secret-santa' ); ?></button>
+						</form>
+
+						<form id="secret-santa_message-recipient" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
+							<input type="hidden" name="action" value="secret-santa_message-recipient" />
+							<?php wp_nonce_field( 'secret-santa_message-recipient' ); ?>
+							<label for="secret-santa_message-recipient-msg"><?php echo esc_html( sprintf( __( 'Anonymously send a message to %s!', 'secret-santa' ), $shipping_to_user->display_name ) ); ?></label>
+							<textarea id="secret-santa_message-recipient-msg" name="secret-santa_message-recipient-msg"></textarea>
+							<button type="submit"><?php echo esc_html( sprintf( __( 'Anonymously message %s', 'secret-santa' ), $shipping_to_user->display_name ) ); ?></button>
+						</form>
+						<?php
+					}
+				endif; ?>
 			<?php elseif ( 4 === $state ) : /* stage four -- reveal */ ?>
 
 			<?php else : /* stage ??? -- something went wrong */ ?>
