@@ -279,6 +279,14 @@ class Secret_Santa {
 		return $return;
 	}
 
+	public static function country_abbr_to_name( $abbr ) {
+		$countries = self::get_countries();
+		if ( isset( $countries[ $abbr ] ) ) {
+			return $countries[ $abbr ];
+		}
+		return $abbr;
+	}
+
 	public static function get_countries() {
 		$countries = array(
 			'AF' => __( 'Afghanistan', 'secret-santa' ),
