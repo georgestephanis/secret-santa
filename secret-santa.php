@@ -43,9 +43,36 @@ class Secret_Santa {
 		) );
 	}
 
+	/**
+	 * Get the post of the specified user.
+	 *
+	 * @param WP_User $user The user whose post we're grabbing for.
+	 * @param string $event NOT YET IMPLEMENTED -- This will let the same site run multiple events by taxonomy.
+	 *
+	 * @return WP_Post|null
+	 */
+	public static function get_user_post( WP_User $user, $event = '' ) {
+		$found = get_posts( array(
+			'author' => $user->ID,
+			'slug' => $user->user_login,
+			'post_type' => 'secret-santa',
+			'post_status' => 'publish',
+			'posts_per_page' => 1,
+		) );
+
+		if ( empty( $found ) ) {
+			return null;
+		}
+
+		return array_unshift( $found );
+	}
+
 	public static function shortcode( $atts ) {
 		$state = 2;
 		$user_id = get_current_user_id();
+		$user = wp_get_current_user();
+		$user_post = self::get_user_post( $user );
+
 		ob_start();
 		?>
 		<div id="secret-santa-wrap">
@@ -54,14 +81,6 @@ class Secret_Santa {
 					<p><?php esc_html_e( 'Want to sign up? Log in!', 'secret-santa' ); ?></p>
 					<?php wp_login_form(); ?>
 				<?php else :
-					$user = get_userdata( $user_id );
-					$found = get_posts( array(
-						'author' => $user_id,
-						'slug' => $user->user_login,
-						'post_type' => 'secret-santa',
-						'post_status' => 'publish',
-						'posts_per_page' => 1,
-					) );
 					$countries = self::get_countries();
 					$defaults = apply_filters( 'secret-santa_get_sign_up_defaults', array(
 						'shipping_address' => null,
@@ -69,8 +88,7 @@ class Secret_Santa {
 					), $user_id, $user );
 					$submit_text = __( 'Sign up!', 'secret-santa' );
 
-					if ( ! empty( $found ) ) {
-						$user_post = array_shift( $found );
+					if ( $user_post ) ) {
 						echo '<p class="alert">' . esc_html__( 'You are already signed up!  You may update your details below:', 'secret-santa' ) . '</p>';
 						$submit_text = __( 'Update info!', 'secret-santa' );
 						$defaults = array(
@@ -105,16 +123,7 @@ class Secret_Santa {
 					<p><?php esc_html_e( 'Want to confirm whether you had signed up? Log in!', 'secret-santa' ); ?></p>
 					<?php wp_login_form(); ?>
 				<?php else :
-					$user = get_userdata( $user_id );
-					$found = get_posts( array(
-						'author' => $user_id,
-						'slug' => $user->user_login,
-						'post_type' => 'secret-santa',
-						'post_status' => 'publish',
-						'posts_per_page' => 1,
-					) );
-
-					if ( ! empty( $found ) ) {
+					if ( $user_post ) {
 						echo '<p class="alert">' . esc_html__( 'You are already signed up!', 'secret-santa' ) . '</p>';
 					} else {
 						echo '<p class="alert">' . esc_html__( 'Unfortunately, sign-ups are now closed, and it doesn\'t look like you signed up!', 'secret-santa' ) . '</p>';
@@ -135,26 +144,19 @@ class Secret_Santa {
 	public static function process_signup() {
 		check_admin_referer( 'secret-santa_signup' );
 
-		$user_id = get_current_user_id();
-		$user = get_userdata( $user_id );
-		$found = get_posts( array(
-			'author' => $user_id,
-			'slug' => $user->user_login,
-			'post_type' => 'secret-santa',
-			'post_status' => 'publish',
-			'posts_per_page' => 1,
-		) );
+		$user = wp_get_current_user();
+		$user_post = self::get_user_post( $user );
 
 		$postarr = array(
-			'post_author' => $user_id,
+			'post_author' => $user->ID,
 			'post_title' => $user->display_name,
 			'post_name' => $user->user_login,
 			'post_type' => 'secret-santa',
 			'post_status' => 'publish',
 		);
 
-		if ( $found ) {
-			$postarr['ID'] = $found[0]->ID;
+		if ( $user_post ) {
+			$postarr['ID'] = $user_post->ID;
 		}
 
 		$post_id = wp_insert_post( $postarr );
