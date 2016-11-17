@@ -106,7 +106,7 @@ class Secret_Santa {
 					), $user_id, $user );
 					$submit_text = __( 'Sign up!', 'secret-santa' );
 
-					if ( $user_post ) ) {
+					if ( $user_post ) {
 						echo '<p class="alert">' . esc_html__( 'You are already signed up!  You may update your details below:', 'secret-santa' ) . '</p>';
 						$submit_text = __( 'Update info!', 'secret-santa' );
 						$defaults = array(
