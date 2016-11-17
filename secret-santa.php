@@ -66,7 +66,7 @@ class Secret_Santa {
 			return null;
 		}
 
-		return array_unshift( $found );
+		return array_shift( $found );
 	}
 
 	public static function get_sender_post_by_recipient( WP_User $recipient, $event = '' ) {
@@ -82,7 +82,7 @@ class Secret_Santa {
 			return null;
 		}
 
-		return array_unshift( $found );
+		return array_shift( $found );
 	}
 
 	public static function shortcode( $atts ) {
