@@ -163,6 +163,7 @@ class Secret_Santa {
 						<h3><?php _e( 'You will be shipping to:', 'secret-santa' ); ?></h3>
 
 						<div class="shipping-to-card">
+							<?php echo get_avatar( $shipping_to_user, 200 ); ?>
 							<h4><?php echo esc_html( $shipping_to_user->display_name ); ?></h4>
 							<p><?php echo esc_html( get_post_meta( $shipping_to_post->ID, 'secret-santa :: shipping_address', true ) ); ?></p>
 							<p><strong><?php echo esc_html( self::country_abbr_to_name( get_post_meta( $shipping_to_post->ID, 'secret-santa :: shipping_country', true ) ) ); ?></strong></p>
