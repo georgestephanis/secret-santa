@@ -16,6 +16,8 @@ class Secret_Santa {
 		add_shortcode( 'holiday-gift-exchange', array( __CLASS__, 'shortcode' ) );
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 		add_action( 'admin_post_secret-santa_signup', array( __CLASS__, 'process_signup' ) );
+		add_action( 'admin_post_secret-santa_message-sender', array( __CLASS__, 'message_sender' ) );
+		add_action( 'admin_post_secret-santa_message-recipient', array( __CLASS__, 'message_recipient' ) );
 		add_action( 'wp_ajax_save_elf_assignees', array( __CLASS__, 'wp_ajax_save_elf_assignees' ) );
 	}
 
@@ -183,6 +185,47 @@ class Secret_Santa {
 		}
 
 		wp_safe_redirect( $_POST['_wp_http_referer'] . '#elf-' . $post_id );
+	}
+
+	public static function message_sender() {
+		check_admin_referer( 'secret-santa_message-sender' );
+
+		$msg = $_POST['secret-santa_message-sender-msg'];
+
+		$user = wp_get_current_user();
+		$user_post = self::get_user_post( $user );
+
+		$to_post = self::get_sender_post_by_recipient( $user );
+		$to_user = get_user_by( 'login', $to_post->post_name );
+
+		/**
+		 * This filter allows implementations to swap out the messaging method -- for
+		 * example, to short circuit the email to send via Slack.
+		 */
+		if ( apply_filters( 'secret-santa_message_sender', true, $msg, $to_user, $user ) ) {
+			wp_mail( $sender_user->user_email, "⛄🎁🎄 A message from {$user->display_name}", $msg, $to_user, $user );
+		}
+	}
+
+	public static function message_recipient() {
+		check_admin_referer( 'secret-santa_message-recipient' );
+
+		$msg = $_POST['secret-santa_message-recipient-msg'];
+
+		// Remember, this messaging option MUST BE ANONYMOUS!
+		$user = wp_get_current_user();
+		$user_post = self::get_user_post( $user );
+
+		$to = get_post_meta( $user_post->ID, 'secret-santa :: shipping_to', true );
+		$to_user = get_user_by( 'login', $shipping_to );
+
+		/**
+		 * This filter allows implementations to swap out the messaging method -- for
+		 * example, to short circuit the email to send via Slack.
+		 */
+		if ( apply_filters( 'secret-santa_message_recipient', true, $msg, $to_user, $user ) ) {
+			wp_mail( $shipping_to_user->user_email, "⛄🎁🎄 A message from your Secret Holiday Elf", $msg );
+		}
 	}
 
 	public static function admin_menu() {
