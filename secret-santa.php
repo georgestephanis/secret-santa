@@ -175,21 +175,29 @@ class Secret_Santa {
 
 						<h3><?php esc_html_e( 'Would you like to send a message?', 'secret-santa' ); ?></h3>
 
-						<form id="secret-santa_message-recipient" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
-							<input type="hidden" name="action" value="secret-santa_message-recipient" />
-							<?php wp_nonce_field( 'secret-santa_message-recipient' ); ?>
-							<label for="secret-santa_message-recipient-msg"><?php echo esc_html( sprintf( __( 'Anonymously send a message to %s!', 'secret-santa' ), $shipping_to_user->display_name ) ); ?></label>
-							<textarea id="secret-santa_message-recipient-msg" name="secret-santa_message-recipient-msg"></textarea>
-							<button type="submit"><?php echo esc_html( sprintf( __( 'Anonymously message %s', 'secret-santa' ), $shipping_to_user->display_name ) ); ?></button>
-						</form>
+						<?php if ( isset( $_GET['message_sent_to'] ) && 'recipient' === $_GET['message_sent_to'] ) : ?>
+							<h2 id="secret-santa_message-recipient"><?php echo esc_html( sprintf( __( 'Your message has been sent (anonymously) to %s!', 'secret-santa' ), $shipping_to_user->display_name ) ); ?></h2>
+						<?php else : ?>
+							<form id="secret-santa_message-recipient" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
+								<input type="hidden" name="action" value="secret-santa_message-recipient" />
+								<?php wp_nonce_field( 'secret-santa_message-recipient' ); ?>
+								<label for="secret-santa_message-recipient-msg"><?php echo esc_html( sprintf( __( 'Anonymously send a message to %s!', 'secret-santa' ), $shipping_to_user->display_name ) ); ?></label>
+								<textarea id="secret-santa_message-recipient-msg" name="secret-santa_message-recipient-msg"></textarea>
+								<button type="submit"><?php echo esc_html( sprintf( __( 'Anonymously message %s', 'secret-santa' ), $shipping_to_user->display_name ) ); ?></button>
+							</form>
+						<?php endif; ?>
 
-						<form id="secret-santa_message-sender" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
-							<input type="hidden" name="action" value="secret-santa_message-sender" />
-							<?php wp_nonce_field( 'secret-santa_message-sender' ); ?>
-							<label for="secret-santa_message-sender-msg"><?php esc_html_e( 'Send a message to the person who is sending a gift to you!', 'secret-santa' ); ?></label>
-							<textarea id="secret-santa_message-sender-msg" name="secret-santa_message-sender-msg"></textarea>
-							<button type="submit"><?php esc_html_e( 'Message the person sending YOU a gift', 'secret-santa' ); ?></button>
-						</form>
+						<?php if ( isset( $_GET['message_sent_to'] ) && 'sender' === $_GET['message_sent_to'] ) : ?>
+							<h2 id="secret-santa_message-sender"><?php esc_html_e( 'Your message has been sent to your Secret Holiday Elf!', 'secret-santa' ); ?></h2>
+						<?php else : ?>
+							<form id="secret-santa_message-sender" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
+								<input type="hidden" name="action" value="secret-santa_message-sender" />
+								<?php wp_nonce_field( 'secret-santa_message-sender' ); ?>
+								<label for="secret-santa_message-sender-msg"><?php esc_html_e( 'Send a message to the person who is sending a gift to you!', 'secret-santa' ); ?></label>
+								<textarea id="secret-santa_message-sender-msg" name="secret-santa_message-sender-msg"></textarea>
+								<button type="submit"><?php esc_html_e( 'Message the person sending YOU a gift', 'secret-santa' ); ?></button>
+							</form>
+						<?php endif; ?>
 
 						<?php
 					}
@@ -250,6 +258,8 @@ class Secret_Santa {
 		if ( apply_filters( 'secret-santa_message_sender', true, $msg, $to_user, $user ) ) {
 			wp_mail( $sender_user->user_email, "⛄🎁🎄 A message from {$user->display_name}", $msg, $to_user, $user );
 		}
+
+		wp_safe_redirect( add_query_arg( 'message_sent_to', 'sender', $_POST['_wp_http_referer'] ) . '#secret-santa_message-sender' );
 	}
 
 	public static function message_recipient() {
@@ -271,6 +281,8 @@ class Secret_Santa {
 		if ( apply_filters( 'secret-santa_message_recipient', true, $msg, $to_user, $user ) ) {
 			wp_mail( $shipping_to_user->user_email, "⛄🎁🎄 A message from your Secret Holiday Elf", $msg );
 		}
+
+		wp_safe_redirect( add_query_arg( 'message_sent_to', 'recipient', $_POST['_wp_http_referer'] ) . '#secret-santa_message-recipient' );
 	}
 
 	public static function admin_menu() {
