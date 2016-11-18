@@ -233,7 +233,7 @@ class Secret_Santa {
 		$post_id = wp_insert_post( $postarr );
 
 		if ( $post_id ) {
-			update_post_meta( $post_id, 'secret-santa :: shipping_address', sanitize_text_field( $_POST['shipping_address'] ) );
+			update_post_meta( $post_id, 'secret-santa :: shipping_address', wp_kses( $_POST['shipping_address'], array() ) );
 			update_post_meta( $post_id, 'secret-santa :: shipping_country', sanitize_text_field( $_POST['shipping_country'] ) );
 		}
 
