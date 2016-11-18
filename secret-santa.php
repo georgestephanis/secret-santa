@@ -203,7 +203,35 @@ class Secret_Santa {
 					}
 				endif; ?>
 			<?php elseif ( 4 === $state ) : /* stage four -- reveal */ ?>
+				<?php if ( ! $user_id ) : ?>
+					<p><?php esc_html_e( 'To do anything here, you\'re going to have to log in first!', 'secret-santa' ); ?></p>
+					<?php wp_login_form(); ?>
+				<?php else :
+					if ( empty( $user_post ) ) {
+						echo '<p class="alert">' . esc_html__( 'Unfortunately, sign-ups are now closed, and it doesn\'t look like you signed up!', 'secret-santa' ) . '</p>';
+					} else {
+						$sender_post = self::get_sender_post_by_recipient( $user );
+						$sender_user = get_user_by( 'login', $sender_post->post_name );
+						?>
 
+						<h3><?php esc_html_e( 'The big reveal!' ); ?></h3>
+						<p><?php printf( esc_html__( 'Your gift was sent by&hellip; %s!', 'secret-santa' ), sprintf( '<strong>%s</strong>', esc_html( $sender_user->display_name ) ) ); ?></p>
+
+						<?php
+						$shipping_to = get_post_meta( $user_post->ID, 'secret-santa :: shipping_to', true );
+						$shipping_to_user = get_user_by( 'login', $shipping_to );
+						$shipping_to_post = self::get_user_post( $shipping_to_user );
+						?>
+
+						<h3><?php _e( 'You shipped to:', 'secret-santa' ); ?></h3>
+						<div class="shipping-to-card">
+							<?php echo get_avatar( $shipping_to_user, 200 ); ?>
+							<h4><?php echo esc_html( $shipping_to_user->display_name ); ?></h4>
+							<p><?php echo esc_html( get_post_meta( $shipping_to_post->ID, 'secret-santa :: shipping_address', true ) ); ?></p>
+							<p><strong><?php echo esc_html( self::country_abbr_to_name( get_post_meta( $shipping_to_post->ID, 'secret-santa :: shipping_country', true ) ) ); ?></strong></p>
+						</div>
+					<?php } ?>
+				<?php endif; ?>
 			<?php else : /* stage ??? -- something went wrong */ ?>
 				<p><?php _e( 'Well, that\'s not supposed to happen...', 'secret-santa' ); ?></p>
 			<?php endif; ?>
