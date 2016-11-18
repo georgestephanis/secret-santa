@@ -340,16 +340,16 @@ class Secret_Santa {
 			<table id="elves-table" class="wp-list-table widefat striped">
 				<thead>
 				<tr>
+					<th scope="col"><?php esc_html_e( 'Receiving From' ); ?></th>
 					<th scope="col"><?php esc_html_e( 'User' ); ?></th>
 					<th scope="col"><?php esc_html_e( 'Shipping To' ); ?></th>
-					<th scope="col"><?php esc_html_e( 'Receiving From' ); ?></th>
 				</tr>
 				</thead>
 				<tfoot>
 				<tr>
+					<th scope="col"><?php esc_html_e( 'Receiving From' ); ?></th>
 					<th scope="col"><?php esc_html_e( 'User' ); ?></th>
 					<th scope="col"><?php esc_html_e( 'Shipping To' ); ?></th>
-					<th scope="col"><?php esc_html_e( 'Receiving From' ); ?></th>
 				</tr>
 				</tfoot>
 				<tbody>
@@ -391,11 +391,11 @@ class Secret_Santa {
 		</script>
 
 		<script type="text/html" id="tmpl-elf-row">
-			   <tr>
-				   <td>{{{ data.elf_card }}}</td>
-				   <td>{{{ data.shipping_to_card }}}</td>
-				   <td>{{{ data.receiving_from_card }}}</td>
-			   </tr>
+				<tr>
+					<td>{{{ data.receiving_from_card }}}</td>
+					<td>{{{ data.elf_card }}}</td>
+					<td>{{{ data.shipping_to_card }}}</td>
+				</tr>
 		</script>
 		<?php
 	}
