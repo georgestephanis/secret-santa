@@ -86,7 +86,11 @@ class Secret_Santa {
 	}
 
 	public static function shortcode( $atts ) {
-		$state = 3;
+		$atts = shortcode_atts( array(
+			'state' => 3
+		), $atts, 'holiday-gift-exchange' );
+		$state = $atts['state'];
+
 		$user_id = get_current_user_id();
 		$user = wp_get_current_user();
 		$user_post = self::get_user_post( $user );
