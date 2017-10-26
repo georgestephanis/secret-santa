@@ -120,7 +120,8 @@ class Secret_Santa {
 			'state' => 0,
 			'event' => 'default-event',
 		), $atts, 'holiday-gift-exchange' );
-		$state = $atts['state'];
+
+		$state = (int) $atts['state'];
 		$event = sanitize_title( $atts['event'] );
 
 		$user_id = get_current_user_id();
