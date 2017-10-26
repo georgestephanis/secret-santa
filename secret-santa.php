@@ -369,7 +369,6 @@ class Secret_Santa {
 		<div class="wrap" id="secret-santa-page">
 			<h1><?php esc_html_e( 'Secret Santa' ); ?> <a class="page-title-action assign-elves" href="#"><?php esc_html_e( 'Assign Elves', 'secret-santa' ); ?></a></h1>
 
-			<h2><?php esc_html_e( 'The following users are participating in Secret Santa' ); ?></h2>
 			<p><small>
 				<strong><?php esc_html_e( 'Events:', 'secret-santa' ); ?></strong>
 				<?php foreach ( get_terms( array( 'taxonomy' => 'secret-santa-event' ) ) as $term ) : ?>
@@ -377,6 +376,7 @@ class Secret_Santa {
 				<?php endforeach; ?>
 			</small></p>
 
+			<h2><?php esc_html_e( 'The following users are participating in the gift exchange:' ); ?></h2>
 			<table id="elves-table" class="wp-list-table widefat striped">
 				<thead>
 				<tr>
