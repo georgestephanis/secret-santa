@@ -84,6 +84,14 @@ class Secret_Santa {
 		return array_shift( $found );
 	}
 
+	/**
+	 * Get the sender to the specified user.
+	 *
+	 * @param WP_User $user The user whose post we're grabbing for.
+	 * @param string $event This will let the same site run multiple events by taxonomy.
+	 *
+	 * @return WP_Post|null
+	 */
 	public static function get_sender_post_by_recipient( WP_User $recipient, $event ) {
 		$found = get_posts( array(
 			'meta_key' => 'secret-santa :: shipping_to',
