@@ -306,7 +306,6 @@ class Secret_Santa {
 		$msg = $_POST['secret-santa_message-sender-msg'];
 
 		$user = wp_get_current_user();
-		$user_post = self::get_user_post( $user );
 
 		$event = ! empty( $_REQUEST['event'] ) ? sanitize_title( $_REQUEST['event'] ) : 'default-event';
 		$to_post = self::get_sender_post_by_recipient( $user, $event );
