@@ -117,7 +117,7 @@ class Secret_Santa {
 
 	public static function shortcode( $atts ) {
 		$atts = shortcode_atts( array(
-			'state' => 3
+			'state' => 0,
 			'event' => 'default-event',
 		), $atts, 'holiday-gift-exchange' );
 		$state = $atts['state'];
