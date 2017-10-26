@@ -317,7 +317,7 @@ class Secret_Santa {
 		 * example, to short circuit the email to send via Slack.
 		 */
 		if ( apply_filters( 'secret-santa_message_sender', true, $msg, $to_user, $user ) ) {
-			wp_mail( $sender_user->user_email, "⛄🎁🎄 A message from {$user->display_name}", $msg, $to_user, $user );
+			wp_mail( $to_user->user_email, "⛄🎁🎄 A message from {$user->display_name}", $msg, $to_user, $user );
 		}
 
 		wp_safe_redirect( add_query_arg( 'message_sent_to', 'sender', $_POST['_wp_http_referer'] ) . '#secret-santa_message-sender' );
@@ -334,14 +334,14 @@ class Secret_Santa {
 		$user_post = self::get_user_post( $user, $event );
 
 		$to = get_post_meta( $user_post->ID, 'secret-santa :: shipping_to', true );
-		$to_user = get_user_by( 'login', $shipping_to );
+		$to_user = get_user_by( 'login', $to );
 
 		/**
 		 * This filter allows implementations to swap out the messaging method -- for
 		 * example, to short circuit the email to send via Slack.
 		 */
 		if ( apply_filters( 'secret-santa_message_recipient', true, $msg, $to_user, $user ) ) {
-			wp_mail( $shipping_to_user->user_email, "⛄🎁🎄 A message from your Secret Holiday Elf", $msg );
+			wp_mail( $to_user->user_email, "⛄🎁🎄 A message from your Secret Holiday Elf", $msg );
 		}
 
 		wp_safe_redirect( add_query_arg( 'message_sent_to', 'recipient', $_POST['_wp_http_referer'] ) . '#secret-santa_message-recipient' );
