@@ -24,6 +24,14 @@ class Secret_Santa {
 	public static function register_post_type() {
 		register_post_type( 'secret-santa', array(
 			'label' => __( 'Secret Santa', 'secret-santa' ),
+			'public' => false,
+			'show_ui' => true,
+		) );
+
+		register_taxonomy( 'secret-santa-event', 'secret-santa', array(
+			'label' => __( 'Event', 'secret-santa' ),
+			'public' => false,
+			'show_ui' => true,
 		) );
 
 		register_meta( 'post', 'secret-santa :: shipping_address', array(
@@ -49,17 +57,24 @@ class Secret_Santa {
 	 * Get the post of the specified user.
 	 *
 	 * @param WP_User $user The user whose post we're grabbing for.
-	 * @param string $event NOT YET IMPLEMENTED -- This will let the same site run multiple events by taxonomy.
+	 * @param string $event This will let the same site run multiple events by taxonomy.
 	 *
 	 * @return WP_Post|null
 	 */
-	public static function get_user_post( WP_User $user, $event = '' ) {
+	public static function get_user_post( WP_User $user, $event ) {
 		$found = get_posts( array(
 			'author' => $user->ID,
 			'slug' => $user->user_login,
 			'post_type' => 'secret-santa',
 			'post_status' => 'publish',
 			'posts_per_page' => 1,
+			'tax_query' => array(
+				array(
+					'taxonomy' => 'secret-santa-event',
+					'field' => 'slug',
+					'terms' => $event,
+				),
+			),
 		) );
 
 		if ( empty( $found ) ) {
@@ -69,13 +84,20 @@ class Secret_Santa {
 		return array_shift( $found );
 	}
 
-	public static function get_sender_post_by_recipient( WP_User $recipient, $event = '' ) {
+	public static function get_sender_post_by_recipient( WP_User $recipient, $event ) {
 		$found = get_posts( array(
 			'meta_key' => 'secret-santa :: shipping_to',
 			'meta_value' => $recipient->user_login,
 			'post_type' => 'secret-santa',
 			'post_status' => 'publish',
 			'posts_per_page' => 1,
+			'tax_query' => array(
+				array(
+					'taxonomy' => 'secret-santa-event',
+					'field' => 'slug',
+					'terms' => $event,
+				),
+			),
 		) );
 
 		if ( empty( $found ) ) {
@@ -88,12 +110,14 @@ class Secret_Santa {
 	public static function shortcode( $atts ) {
 		$atts = shortcode_atts( array(
 			'state' => 3
+			'event' => 'default-event',
 		), $atts, 'holiday-gift-exchange' );
 		$state = $atts['state'];
+		$event = sanitize_title( $atts['event'] );
 
 		$user_id = get_current_user_id();
 		$user = wp_get_current_user();
-		$user_post = self::get_user_post( $user );
+		$user_post = self::get_user_post( $user, $event );
 
 		ob_start();
 		?>
@@ -161,7 +185,7 @@ class Secret_Santa {
 					} else {
 						$shipping_to = get_post_meta( $user_post->ID, 'secret-santa :: shipping_to', true );
 						$shipping_to_user = get_user_by( 'login', $shipping_to );
-						$shipping_to_post = self::get_user_post( $shipping_to_user );
+						$shipping_to_post = self::get_user_post( $shipping_to_user, $event );
 						?>
 
 						<h3><?php _e( 'You will be shipping to:', 'secret-santa' ); ?></h3>
@@ -214,7 +238,7 @@ class Secret_Santa {
 					if ( empty( $user_post ) ) {
 						echo '<p class="alert">' . esc_html__( 'Unfortunately, sign-ups are now closed, and it doesn\'t look like you signed up!', 'secret-santa' ) . '</p>';
 					} else {
-						$sender_post = self::get_sender_post_by_recipient( $user );
+						$sender_post = self::get_sender_post_by_recipient( $user, $event );
 						$sender_user = get_user_by( 'login', $sender_post->post_name );
 						?>
 
@@ -224,7 +248,7 @@ class Secret_Santa {
 						<?php
 						$shipping_to = get_post_meta( $user_post->ID, 'secret-santa :: shipping_to', true );
 						$shipping_to_user = get_user_by( 'login', $shipping_to );
-						$shipping_to_post = self::get_user_post( $shipping_to_user );
+						$shipping_to_post = self::get_user_post( $shipping_to_user, $event );
 						?>
 
 						<h3><?php _e( 'You shipped to:', 'secret-santa' ); ?></h3>
@@ -247,8 +271,9 @@ class Secret_Santa {
 	public static function process_signup() {
 		check_admin_referer( 'secret-santa_signup' );
 
+		$event = ! empty( $_REQUEST['event'] ) ? sanitize_title( $_REQUEST['event'] ) : 'default-event';
 		$user = wp_get_current_user();
-		$user_post = self::get_user_post( $user );
+		$user_post = self::get_user_post( $user, $event );
 
 		$postarr = array(
 			'post_author' => $user->ID,
@@ -256,6 +281,9 @@ class Secret_Santa {
 			'post_name' => $user->user_login,
 			'post_type' => 'secret-santa',
 			'post_status' => 'publish',
+			'tax_input' => array(
+				'secret-santa-event' => $event,
+			),
 		);
 
 		if ( $user_post ) {
@@ -280,7 +308,8 @@ class Secret_Santa {
 		$user = wp_get_current_user();
 		$user_post = self::get_user_post( $user );
 
-		$to_post = self::get_sender_post_by_recipient( $user );
+		$event = ! empty( $_REQUEST['event'] ) ? sanitize_title( $_REQUEST['event'] ) : 'default-event';
+		$to_post = self::get_sender_post_by_recipient( $user, $event );
 		$to_user = get_user_by( 'login', $to_post->post_name );
 
 		/**
@@ -294,14 +323,15 @@ class Secret_Santa {
 		wp_safe_redirect( add_query_arg( 'message_sent_to', 'sender', $_POST['_wp_http_referer'] ) . '#secret-santa_message-sender' );
 	}
 
-	public static function message_recipient() {
+	public static function message_recipient( $event ) {
 		check_admin_referer( 'secret-santa_message-recipient' );
 
 		$msg = $_POST['secret-santa_message-recipient-msg'];
 
 		// Remember, this messaging option MUST BE ANONYMOUS!
+		$event = ! empty( $_REQUEST['event'] ) ? sanitize_title( $_REQUEST['event'] ) : 'default-event';
 		$user = wp_get_current_user();
-		$user_post = self::get_user_post( $user );
+		$user_post = self::get_user_post( $user, $event );
 
 		$to = get_post_meta( $user_post->ID, 'secret-santa :: shipping_to', true );
 		$to_user = get_user_by( 'login', $shipping_to );
@@ -322,12 +352,15 @@ class Secret_Santa {
 	}
 
 	public static function admin_page() {
+		$event = ! empty( $_REQUEST['event'] ) ? sanitize_title( $_REQUEST['event'] ) : 'default-event';
+
 		add_action( 'admin_print_footer_scripts', array( __CLASS__, 'js_templates' ), 1 );
 
 		wp_enqueue_style( 'secret-santa', plugins_url( 'admin-page.css', __FILE__ ) );
 		wp_enqueue_script( 'secret-santa', plugins_url( 'admin-page.js', __FILE__ ), array( 'wp-util', 'jquery' ), false, true );
 		wp_localize_script( 'secret-santa', 'secretSanta', array(
-			'elves' => self::get_users(),
+			'elves' => self::get_users( $event ),
+			'event' => $event,
 			'nonces' => array(
 				'save_elf_assignees' => wp_create_nonce( 'save_elf_assignees' ),
 			),
@@ -337,6 +370,13 @@ class Secret_Santa {
 			<h1><?php esc_html_e( 'Secret Santa' ); ?> <a class="page-title-action assign-elves" href="#"><?php esc_html_e( 'Assign Elves', 'secret-santa' ); ?></a></h1>
 
 			<h2><?php esc_html_e( 'The following users are participating in Secret Santa' ); ?></h2>
+			<p><small>
+				<strong><?php esc_html_e( 'Events:', 'secret-santa' ); ?></strong>
+				<?php foreach ( get_terms( array( 'taxonomy' => 'secret-santa-event' ) ) as $term ) : ?>
+					<a href="<?php echo esc_url( add_query_arg( 'event', $term->slug ) ); ?>"><?php echo esc_html( $term->slug ); ?></a>
+				<?php endforeach; ?>
+			</small></p>
+
 			<table id="elves-table" class="wp-list-table widefat striped">
 				<thead>
 				<tr>
@@ -400,11 +440,18 @@ class Secret_Santa {
 		<?php
 	}
 
-	public static function get_users() {
+	public static function get_users( $event ) {
 		$users = get_posts( array(
 			'post_type' => 'secret-santa',
 			'post_status' => 'publish',
 			'posts_per_page' => -1,
+			'tax_query' => array(
+				array(
+					'taxonomy' => 'secret-santa-event',
+					'field' => 'slug',
+					'terms' => $event,
+				),
+			),
 		) );
 
 		$return = array();
