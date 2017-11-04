@@ -154,6 +154,7 @@ class Secret_Santa {
 					?>
 					<form id="secret-santa-signup" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
 						<input type="hidden" name="action" value="secret-santa_signup" />
+						<input type="hidden" name="event" value="<?php echo esc_attr( $event ); ?>" />
 						<?php wp_nonce_field( 'secret-santa_signup' ); ?>
 						<label>
 							<?php esc_html_e( 'Your shipping address', 'secret-santa' ); ?>
@@ -217,6 +218,7 @@ class Secret_Santa {
 						<?php else : ?>
 							<form id="secret-santa_message-recipient" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
 								<input type="hidden" name="action" value="secret-santa_message-recipient" />
+								<input type="hidden" name="event" value="<?php echo esc_attr( $event ); ?>" />
 								<?php wp_nonce_field( 'secret-santa_message-recipient' ); ?>
 								<label for="secret-santa_message-recipient-msg"><?php echo esc_html( sprintf( __( 'Anonymously send a message to %s!', 'secret-santa' ), $shipping_to_user->display_name ) ); ?></label>
 								<textarea id="secret-santa_message-recipient-msg" name="secret-santa_message-recipient-msg"></textarea>
@@ -229,6 +231,7 @@ class Secret_Santa {
 						<?php else : ?>
 							<form id="secret-santa_message-sender" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
 								<input type="hidden" name="action" value="secret-santa_message-sender" />
+								<input type="hidden" name="event" value="<?php echo esc_attr( $event ); ?>" />
 								<?php wp_nonce_field( 'secret-santa_message-sender' ); ?>
 								<label for="secret-santa_message-sender-msg"><?php esc_html_e( 'Send a message to the person who is sending a gift to you!', 'secret-santa' ); ?></label>
 								<textarea id="secret-santa_message-sender-msg" name="secret-santa_message-sender-msg"></textarea>
