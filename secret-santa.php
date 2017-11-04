@@ -469,7 +469,7 @@ class Secret_Santa {
 
 		if ( $users ) {
 			foreach ( $users as $user_post ) {
-				$user = get_user_by( 'login', $user_post->post_name );
+				$user = get_user_by( 'ID', $user_post->post_author );
 				$return[ $user->user_login ] = array(
 					'ID' => $user_post->ID,
 					'user_login' => $user->user_login,
