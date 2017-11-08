@@ -23,11 +23,6 @@
 				'3' : i18n['state3'],
 				'4' : i18n['state4'],
 			};
-			function handleStateChange( event ) {
-				props.setAttributes({
-					state : $( event.target ).data( 'state' )
-				});
-			}
 
 			return wp.element.createElement(
 				'div',
@@ -52,14 +47,21 @@
 									i18n['Current State:'] + ' ' + i18n[ 'state' + props.attributes.state ]
 								);
 							},
-							renderContent : function() {
+							renderContent : function( args ) {
+								function handleStateChange( event ) {
+									props.setAttributes({
+										state : event.target.dataset.state
+									});
+									args.onClose();
+								}
 								var options = [];
+
 								for ( thisState in stateLabels ) {
 									options.push(
 										wp.element.createElement(
 											'li',
 											{
-												key : 'secret-santa/picker/options/' + thisState,
+												key : 'secret-santa/picker/options/' + thisState
 											},
 											wp.element.createElement(
 												'a',
