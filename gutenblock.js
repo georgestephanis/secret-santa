@@ -23,12 +23,49 @@
 				'3' : i18n['state3'],
 				'4' : i18n['state4'],
 			};
+			function handleEventChange( eventArr ) {
+				if ( 0 === eventArr.length ) {
+					props.setAttributes({
+						event : ''
+					});
+				} else {
+					props.setAttributes({
+						event : eventArr[ 0 ]
+					});
+				}
+			}
 
 			return wp.element.createElement(
 				'div',
 				null,
 				[
-					'HI',
+					wp.element.createElement(
+						'h3',
+						{
+							key : 'secret-santa/title'
+						},
+						i18n['Holiday Gift Exchange']
+					),
+					wp.element.createElement(
+						'section',
+						{
+							key : 'secret-santa/event'
+						},
+						[
+							i18n['Event:'],
+							wp.element.createElement(
+								wp.components.FormTokenField,
+								{
+									key : 'secret-santa/event/form-token-field',
+									suggestions : window.secretSantaGutenblock.events,
+									value : props.attributes.event ? [ props.attributes.event ] : [],
+									maxLength : 1,
+									disabled : false,
+									onChange : handleEventChange
+								}
+							),
+						]
+					),
 					wp.element.createElement(
 						wp.components.Dropdown,
 						{
@@ -50,7 +87,7 @@
 							renderContent : function( args ) {
 								function handleStateChange( event ) {
 									props.setAttributes({
-										state : event.target.dataset.state
+										state : parseInt( event.target.dataset.state, 10 )
 									});
 									args.onClose();
 								}
@@ -61,7 +98,8 @@
 										wp.element.createElement(
 											'li',
 											{
-												key : 'secret-santa/picker/options/' + thisState
+												key : 'secret-santa/picker/options/' + thisState,
+												className : ( parseInt( thisState, 10 ) === props.attributes.state ) ? 'current' : ''
 											},
 											wp.element.createElement(
 												'a',

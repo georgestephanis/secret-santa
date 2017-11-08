@@ -62,6 +62,12 @@ class Secret_Santa {
 	}
 
 	public static function enqueue_block_editor_assets() {
+		wp_register_style(
+			'secret-santa-gutenblock',
+			plugins_url( 'gutenblock.css', __FILE__ )
+		);
+		wp_enqueue_style( 'secret-santa-gutenblock' );
+
 		wp_register_script(
 			'secret-santa-gutenblock',
 			plugins_url( 'gutenblock.js', __FILE__ ),
@@ -72,12 +78,14 @@ class Secret_Santa {
 		wp_localize_script( 'secret-santa-gutenblock', 'secretSantaGutenblock', array(
 			'strings' => array(
 				'Holiday Gift Exchange' => __( 'Holiday Gift Exchange', 'secret-santa' ),
+				'Event:' => __( 'Event:', 'secret-santa' ),
 				'Current State:' => __( 'Current State:', 'secret-santa' ),
 				'state1' => __( 'Signups Open!', 'secret-santa' ),
 				'state2' => __( 'Signups Closed, working on assignments!', 'secret-santa' ),
 				'state3' => __( 'Please send your gifts!', 'secret-santa' ),
 				'state4' => __( 'The Great Unmasking!', 'secret-santa' ),
 			),
+			'events' => wp_list_pluck( get_terms( 'secret-santa-event', array( 'hide_empty' => false ) ), 'name' ),
 		) );
 	}
 

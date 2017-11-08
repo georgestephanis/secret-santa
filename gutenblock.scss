@@ -1,0 +1,11 @@
+.secret-santa-state-picker {
+  ul {
+    list-style-type: none;
+    li {
+      padding: 0.2em 0.5em;
+      &.current {
+        font-weight: 700;
+      }
+    }
+  }
+}
