@@ -15,10 +15,12 @@ class Secret_Santa {
 		add_shortcode( 'secret-santa', array( __CLASS__, 'shortcode' ) ); // legacy
 		add_shortcode( 'holiday-gift-exchange', array( __CLASS__, 'shortcode' ) );
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
+		add_action( 'init', array( __CLASS__, 'register_block_type' ) );
 		add_action( 'admin_post_secret-santa_signup', array( __CLASS__, 'process_signup' ) );
 		add_action( 'admin_post_secret-santa_message-sender', array( __CLASS__, 'message_sender' ) );
 		add_action( 'admin_post_secret-santa_message-recipient', array( __CLASS__, 'message_recipient' ) );
 		add_action( 'wp_ajax_save_elf_assignees', array( __CLASS__, 'wp_ajax_save_elf_assignees' ) );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 	}
 
 	public static function register_post_type() {
@@ -50,6 +52,40 @@ class Secret_Santa {
 			'type' => 'user_login',
 			'description' => __( 'The user login of the recipient that this person will be sending to.', 'secret-santa' ),
 			'single' => true,
+		) );
+	}
+
+	public static function register_block_type() {
+		register_block_type( 'secret-santa/ui', array(
+			'render_callback' => array( __CLASS__, 'shortcode' ),
+		) );
+	}
+
+	public static function enqueue_block_editor_assets() {
+		wp_register_style(
+			'secret-santa-gutenblock',
+			plugins_url( 'gutenblock.css', __FILE__ )
+		);
+		wp_enqueue_style( 'secret-santa-gutenblock' );
+
+		wp_register_script(
+			'secret-santa-gutenblock',
+			plugins_url( 'gutenblock.js', __FILE__ ),
+			array( 'wp-blocks', 'wp-element' )
+		);
+		wp_enqueue_script( 'secret-santa-gutenblock' );
+
+		wp_localize_script( 'secret-santa-gutenblock', 'secretSantaGutenblock', array(
+			'strings' => array(
+				'Holiday Gift Exchange' => __( 'Holiday Gift Exchange', 'secret-santa' ),
+				'Event:' => __( 'Event:', 'secret-santa' ),
+				'Current State:' => __( 'Current State:', 'secret-santa' ),
+				'state1' => __( 'Signups Open!', 'secret-santa' ),
+				'state2' => __( 'Signups Closed, working on assignments!', 'secret-santa' ),
+				'state3' => __( 'Please send your gifts!', 'secret-santa' ),
+				'state4' => __( 'The Great Unmasking!', 'secret-santa' ),
+			),
+			'events' => wp_list_pluck( get_terms( 'secret-santa-event', array( 'hide_empty' => false ) ), 'name' ),
 		) );
 	}
 

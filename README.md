@@ -17,3 +17,12 @@ We use this internally at Automattic with special filters in place to pre-popula
 
 We also short-circuit any `wp_mail` calls in the plugin to message folks via Slack instead (I think, it's been about a year since I looked at that bit of the code)
 
+# Building Styles
+
+Until I integrate a build tool, styles can be compiled via:
+
+```
+sass admin-page.scss > admin-page.css
+sass gutenblock.scss > gutenblock.css
+```
+
