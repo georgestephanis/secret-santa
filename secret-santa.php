@@ -364,7 +364,7 @@ class Secret_Santa {
 		 * example, to short circuit the email to send via Slack.
 		 */
 		if ( apply_filters( 'secret-santa_message_sender', true, $msg, $to_user, $user ) ) {
-			wp_mail( $to_user->user_email, "⛄🎁🎄 A message from {$user->display_name}", $msg, $to_user, $user );
+			wp_mail( $to_user->user_email, "⛄🎁🎄 A message from {$user->display_name}", $msg );
 		}
 
 		wp_safe_redirect( add_query_arg( 'message_sent_to', 'sender', $_POST['_wp_http_referer'] ) . '#secret-santa_message-sender' );
