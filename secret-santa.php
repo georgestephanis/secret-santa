@@ -56,9 +56,11 @@ class Secret_Santa {
 	}
 
 	public static function register_block_type() {
-		register_block_type( 'secret-santa/ui', array(
-			'render_callback' => array( __CLASS__, 'shortcode' ),
-		) );
+		if ( function_exists( 'register_block_type' ) ) {
+			register_block_type( 'secret-santa/ui', array(
+				'render_callback' => array( __CLASS__, 'shortcode' ),
+			) );
+		}
 	}
 
 	public static function enqueue_block_editor_assets() {
