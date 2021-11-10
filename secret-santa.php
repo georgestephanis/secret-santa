@@ -17,6 +17,7 @@ class Secret_Santa {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 		add_action( 'init', array( __CLASS__, 'register_block_type' ) );
 		add_action( 'admin_post_secret-santa_signup', array( __CLASS__, 'process_signup' ) );
+		add_action( 'admin_post_secret-santa_un-signup', array( __CLASS__, 'process_unsignup' ) );
 		add_action( 'admin_post_secret-santa_message-sender', array( __CLASS__, 'message_sender' ) );
 		add_action( 'admin_post_secret-santa_message-recipient', array( __CLASS__, 'message_recipient' ) );
 		add_action( 'wp_ajax_save_elf_assignees', array( __CLASS__, 'wp_ajax_save_elf_assignees' ) );
@@ -209,7 +210,19 @@ class Secret_Santa {
 						</label>
 						<button type="submit"><?php echo esc_html( $submit_text ); ?></button>
 					</form>
+
+					<?php if ( $user_post ) : ?>
+						<form id="secret-santa-un-signup" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="POST">
+							<input type="hidden" name="action" value="secret-santa_un-signup" />
+							<input type="hidden" name="event" value="<?php echo esc_attr( $event ); ?>" />
+							<?php wp_nonce_field( 'secret-santa_un-signup' ); ?>
+							<label>
+								<?php esc_html_e( 'Signed up by mistake? Changed your mind? You can back out anytime until the assignments are made!', 'secret-santa' ); ?>
+								<button type="submit"><?php esc_html_e( 'Remove me from the swap.', 'secret-santa' ); ?></button>
+							</label>
+						</form>
 					<?php
+					endif;
 				endif; ?>
 			<?php elseif ( 2 === $state ) : /* stage two -- signups closed, waiting on assignments */ ?>
 				<p><?php esc_html_e( 'We are currently sorting out who ships to who and whatnot, and hope to have them available shortly!', 'secret-santa' ); ?></p>
@@ -348,6 +361,21 @@ class Secret_Santa {
 		}
 
 		wp_safe_redirect( $_POST['_wp_http_referer'] . '#elf-' . $post_id );
+	}
+
+	public static function process_unsignup() {
+		check_admin_referer( 'secret-santa_un-signup' );
+
+		$event = ! empty( $_REQUEST['event'] ) ? sanitize_title( $_REQUEST['event'] ) : 'default-event';
+		$user = wp_get_current_user();
+		$user_post = self::get_user_post( $user, $event );
+
+		if ( $user_post ) {
+			wp_delete_post( $user_post->ID, true ); // don't trash, actually delete.
+			wp_safe_redirect( $_POST['_wp_http_referer'] . '#un-signedup' );
+		} else {
+			wp_safe_redirect( $_POST['_wp_http_referer'] . '#elf-not-found' );
+		}
 	}
 
 	public static function message_sender() {
