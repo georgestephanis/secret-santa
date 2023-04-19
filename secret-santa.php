@@ -302,7 +302,7 @@ class Secret_Santa {
 						echo '<p class="alert">' . esc_html__( 'Unfortunately, sign-ups are now closed, and it doesn\'t look like you signed up!', 'secret-santa' ) . '</p>';
 					} else {
 						$sender_post = self::get_sender_post_by_recipient( $user, $event );
-						$sender_user = get_user_by( 'login', $sender_post->post_name );
+						$sender_user = get_user_by( 'ID', $sender_post->post_author );
 						?>
 
 						<h3><?php esc_html_e( 'The big reveal!' ); ?></h3>
