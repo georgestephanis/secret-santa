@@ -16,7 +16,7 @@
 				});
 				$tbody.append( elf_row({
 					elf_card: elf_card( elf ),
-					shipping_to_card: elf.shipping_to ? elf_card( elves[ elf.shipping_to ] ) : '',
+					shipping_to_card: ( elf.shipping_to && elves[ elf.shipping_to ] ) ? elf_card( elves[ elf.shipping_to ] ) : '',
 					receiving_from_card: receiving_from ? elf_card( receiving_from ) : ''
 				}));
 			});
