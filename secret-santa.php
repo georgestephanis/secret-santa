@@ -195,6 +195,7 @@ class Secret_Santa {
 						<input type="hidden" name="action" value="secret-santa_signup" />
 						<input type="hidden" name="event" value="<?php echo esc_attr( $event ); ?>" />
 						<?php wp_nonce_field( 'secret-santa_signup' ); ?>
+						<?php do_action( 'secret-santa_sign_up_fields', $user_post, $user, $event ); ?>
 						<label>
 							<?php esc_html_e( 'Your shipping address', 'secret-santa' ); ?>
 							<textarea name="shipping_address" required><?php echo esc_textarea( $defaults['shipping_address'] ); ?></textarea>
@@ -362,6 +363,7 @@ class Secret_Santa {
 		if ( $post_id ) {
 			update_post_meta( $post_id, 'secret-santa :: shipping_address', wp_kses( $_POST['shipping_address'], array() ) );
 			update_post_meta( $post_id, 'secret-santa :: shipping_country', sanitize_text_field( $_POST['shipping_country'] ) );
+			do_action( 'secret-santa_signed_up', $post_id, $user, $event );
 		}
 
 		wp_safe_redirect( $_POST['_wp_http_referer'] . '#elf-' . $post_id );
